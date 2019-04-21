@@ -1,6 +1,6 @@
 <GuiXml>
     <Controls>
-        <TopLevelControl name="HomesteadDirectoryWindow" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="false">
+        <TopLevelControl name="HomesteadDirectoryWindow" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true">
             <Dimensions x="1000" y="400" />
             <Anchor point="CENTER" />
             <Controls>
@@ -13,33 +13,33 @@
                     <Anchor point="TOPRIGHT" offsetX="-35" offsetY="5"/>
                     <Dimensions y="32"/>
                     <Controls>
-                        <Control name="$(parent)Name" inherits="ZO_SortHeader">
+                        <Control name="$(parent)HouseName" inherits="ZO_SortHeader">
                             <OnInitialized>
-                                ZO_SortHeader_Initialize(self, "Name", "skName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                                ZO_SortHeader_Initialize(self, "Name", "houseName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
                             <Anchor point="TOPLEFT" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
                             <Dimensions x="160" y="32"/>
                         </Control>
-                        <Control name="$(parent)Location" inherits="ZO_SortHeader">
+                        <Control name="$(parent)LoreLocation" inherits="ZO_SortHeader">
                             <OnInitialized>
-                                ZO_SortHeader_Initialize(self, "Location", "skLocation", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                                ZO_SortHeader_Initialize(self, "Location", "loreLocation", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Name" offsetX="18"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)HouseName" offsetX="18"/>
                             <Dimensions x="300" y="32"/>
                         </Control>
-                        <Control name="$(parent)Faction" inherits="ZO_SortHeader">
+                        <Control name="$(parent)ShortDesc" inherits="ZO_SortHeader">
                             <OnInitialized>
-                                ZO_SortHeader_Initialize(self, "Faction", "skFaction", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                                ZO_SortHeader_Initialize(self, "Summary", "shortDesc", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Location" offsetX="18"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)LoreLocation" offsetX="18"/>
                             <Dimensions x="215" y="32"/>
                         </Control>
                         <Control name="$(parent)Population" inherits="ZO_SortHeader">
                             <OnInitialized>
-                                ZO_SortHeader_Initialize(self, "Population", "skPopulation", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                                ZO_SortHeader_Initialize(self, "Population", "population", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
-                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Faction" offsetX="18"/>
-                            <Dimensions x="150" y="32"/>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)ShortDesc" offsetX="18"/>
+                            <Dimensions x="100" y="32"/>
                         </Control>
                     </Controls>
                 </Control>
@@ -57,22 +57,38 @@
             <Controls>
                 <Texture name="$(parent)BG" inherits="ZO_ThinListBgStrip"/>
 
-                <Label name="$(parent)Name" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                <Label name="$(parent)HouseName" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
                     <Anchor point="LEFT"/>
                     <Dimensions x="160" y="30"/>
                 </Label>
-                <Label name="$(parent)Location" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Name" offsetX="18"/>
+                <Label name="$(parent)LoreLocation" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)HouseName" offsetX="18"/>
                     <Dimensions x="300" y="30"/>
                 </Label>
-                <Label name="$(parent)Faction" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Location" offsetX="18"/>
+                <Label name="$(parent)ShortDesc" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)LoreLocation" offsetX="18"/>
                     <Dimensions x="215" y="30"/>
                 </Label>
                 <Label name="$(parent)Population" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
-                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Faction" offsetX="18"/>
-                    <Dimensions x="150" y="30"/>
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)ShortDesc" offsetX="18"/>
+                    <Dimensions x="100" y="30"/>
                 </Label>
+
+                <Button name="$(parent)Teleport" alpha="1" clickSound="Book_Acquired" topmost="true">
+                    <Textures normal="/esoui/art/icons/poi/poi_wayshrine_complete.dds" mouseOver="/esoui/art/icons/poi/poi_wayshrine_glow.dds" />
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Population" offsetX="18" offsetY="0" />
+                    <Dimensions x="30" y="30" />
+                    <OnInitialized>
+                        <!--
+                        self.tooltipText = "Teleport to this location."
+                        self:SetHandler("OnMouseEnter", ZO_Options_OnMouseEnter)
+                        self:SetHandler("OnMouseExit", ZO_Options_OnMouseExit)
+                        -->
+                    </OnInitialized>
+                    <OnClicked>
+                        RoleplayFinder.OnClicked_TeleportTolocation(self)
+                    </OnClicked>
+                </Button>
             </Controls>
         </Control>
     </Controls>

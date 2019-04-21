@@ -20,6 +20,8 @@ local COLOR_LOCATION_HEADER = "|cFFFFFF"
 local ENCODE_CHARSET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/!"$%()^&*-_=+:;{}.?<>,@&~`[]'
 local ENCODE_CHARSET_LENGTH = string.len(ENCODE_CHARSET)
 
+local LocationRegistryList = ZO_SortFilterList:Subclass()
+
 local function encodeNumber(number, encodeLength)
     encodeLength = encodeLength or 1
 
@@ -239,10 +241,6 @@ function RoleplayFinder.printAllLocationData()
     end
 end
 
-function TACTITEST()
-    RoleplayFinder.printAllLocationData()
-end
-
 function RoleplayFinder.computeDisplayText(notedata)
     local notetext = ""
     if (notedata.inCharacter == true) then
@@ -285,30 +283,27 @@ local function ShowContextMenu()
         d("a")
     end)
     AddMenuItem("View Homestead Directory", function()
-        -- TODO: Eventually show a nice GUI with a list of homesteads.
-        RoleplayFinder.printAllLocationData()
+        HomesteadDirectoryWindow:SetHidden(false)
+        RoleplayFinder.RefreshLocationRegistryList()
     end)
     ShowMenu()
 end
 
-local myList = ZO_SortFilterList:Subclass()
-
-function myList:New(control)
+function LocationRegistryList:New(control)
     ZO_SortFilterList.InitializeSortFilterList(self, control)
 
-    -- tiebreaker  is used when values are equal. You can also add isNumeric = true if needed.
     local sorterKeys =
     {
-        ["name"] = {tiebreaker = "population"},
-        ["location"] = {tiebreaker = "population"},
-        ["faction"] = {tiebreaker = "population"},
+        ["houseName"] = {tiebreaker = "population"},
+        ["loreLocation"] = {tiebreaker = "population"},
+        ["shortDesc"] = {tiebreaker = "population"},
         ["population"] = {isNumeric = true},
     }
 
     self.masterList = {}
     ZO_ScrollList_AddDataType(self.list, 1, "HomesteadDirectoryRowTemplate", 32, function(control, data) self:SetupEntry(control, data) end) -- Add my row
     ZO_ScrollList_EnableHighlight(self.list, "ZO_ThinListHighlight") -- Enable the highlight (the turquoise color)
-    self.currentSortKey = "population" -- defaut sort
+    self.currentSortKey = "population" -- default sort
 
     self.sortFunction = function(listEntry1, listEntry2) return ZO_TableOrderingFunction(listEntry1.data, listEntry2.data, self.currentSortKey, sorterKeys, self.currentSortOrder) end -- my sort function
     self:SetAlternateRowBackgrounds(true) -- Alternate background, one dark, one grey
@@ -317,39 +312,61 @@ function myList:New(control)
 
 end
 
-function myList:SetupEntry(control, data)
+function LocationRegistryList:SetupEntry(control, data)
     -- Setup a row
     control.data = data
-    control.name = GetControl(control, "Name")
-    control.location = GetControl(control, "Location")
-    control.faction = GetControl(control, "Faction")
+
+    control.houseName = GetControl(control, "HouseName")
+    control.location = GetControl(control, "LoreLocation")
+    control.shortDesc = GetControl(control, "ShortDesc")
     control.population = GetControl(control, "Population")
 
-    control.name:SetText(data.name)
-    control.location:SetText("Bleaker's Outpost")
-    control.faction:SetText("Everyone buy AD")
-    control.population:SetText("42")
-
-    d("setting up entry")
+    control.houseName:SetText(data.houseName)
+    control.location:SetText(data.loreLocation)
+    control.shortDesc:SetText(data.shortDesc)
+    control.population:SetText(data.population .. " / " .. data.populationCap)
 
     ZO_SortFilterList.SetupRow(self, control, data)
 end
 
-function myList:BuildMasterList()
+function LocationRegistryList:BuildMasterList()
     self.masterList = {}
-    -- TODO: Read a list from somewhere and copy it into masterList
-    table.insert(self.masterList, { name = "lol", location = "Bleaker's Outpost" })
-    table.insert(self.masterList, { name = "xds" })
-    table.insert(self.masterList, { name = "lolxas" })
-    table.insert(self.masterList, { name = "v" })
+
+    local allLocations = LocationRegistry.getAllLocations()
+    local allLocationData = RoleplayFinder.computeAllLocationData()
+
+    for locationId, location in pairs(allLocations) do
+        local population = 0
+        if (allLocationData[location.id] ~= nil) then
+            population = allLocationData[locationId].population
+        end
+
+        local data = {
+            id = location.id,
+            username = location.username,
+            houseId = location.houseId,
+            houseName = location.houseName,
+            populationCap = location.populationCap,
+            loreLocation = location.loreLocation,
+            shortDesc = location.shortDesc,
+            longDesc = location.longDesc,
+            monsterPolicy = location.monsterPolicy,
+            faction = location.faction,
+            miscDesc = location.miscDesc,
+
+            population = population
+        }
+
+        table.insert(self.masterList, data)
+    end
 end
 
-function myList:SortScrollList()
+function LocationRegistryList:SortScrollList()
     local scrollData = ZO_ScrollList_GetDataList(self.list)
     table.sort(scrollData, self.sortFunction)
 end
 
-function myList:FilterScrollList()
+function LocationRegistryList:FilterScrollList()
     -- If you want to add a filter
     local scrollData = ZO_ScrollList_GetDataList(self.list)
     ZO_ClearNumericallyIndexedTable(scrollData)
@@ -357,6 +374,23 @@ function myList:FilterScrollList()
     for i = 1, #self.masterList do
         local data = self.masterList[i]
         table.insert(scrollData, ZO_ScrollList_CreateDataEntry(1, data))
+    end
+end
+
+function RoleplayFinder.OnClicked_TeleportTolocation(control)
+    local row = control:GetParent()
+    d("Jumping to " .. row.data.username .. "#" .. row.data.houseId)
+    if (row.data.username == GetDisplayName()) then
+        -- Can't jump to yourself with JumpToSpecificHouse for some reason.
+        RequestJumpToHouse(row.data.houseId)
+    else
+        JumpToSpecificHouse(row.data.username, row.data.houseId)
+    end
+end
+
+function RoleplayFinder.RefreshLocationRegistryList()
+    if (not HomesteadDirectoryWindow:IsHidden()) then
+        LocationRegistryList:RefreshData()
     end
 end
 
@@ -381,15 +415,20 @@ function RoleplayFinder.OnAddOnLoaded(event, addonName)
 
     -- TODO: hook to update my notedata on location change
     -- TODO: hook to update my notedata on population change
-    EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED, RoleplayFinder.updateNotedata)
+    EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED, function(...)
+        RoleplayFinder.updateNotedata()
+        HomesteadDirectoryWindow:SetHidden(true)
+    end)
     EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_HOUSING_POPULATION_CHANGED, RoleplayFinder.updateNotedata)
 
     -- TODO: test code
     SLASH_COMMANDS["/tt"] = function()
         HomesteadDirectoryWindow:SetHidden(not HomesteadDirectoryWindow:IsHidden())
+        RoleplayFinder.RefreshLocationRegistryList()
     end
-    myList:New(HomesteadDirectoryWindow)
-    myList:RefreshData()
+
+    -- Initialize GUI
+    LocationRegistryList:New(HomesteadDirectoryWindow)
 end
 
 -- When any addon is loaded, but before UI (Chat) is loaded.
