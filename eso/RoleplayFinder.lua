@@ -1,12 +1,12 @@
 RoleplayFinder = {
-    name            = "RoleplayFinder",
-    version         = "1.0",
-    author          = "Tactitocalon",
-    color           = "DDFFEE",             -- Used in menu titles and so on.
-    menuName        = "Roleplay Finder",    -- A UNIQUE identifier for menu object.
+    name = "RoleplayFinder",
+    version = "1.0",
+    author = "Tactitocalon",
+    color = "DDFFEE", -- Used in menu titles and so on.
+    menuName = "Roleplay Finder", -- A UNIQUE identifier for menu object.
 
     protocolVersion = 1,
-	
+
     -- Default settings.
     savedVariables = {
         FirstLoad = true
@@ -154,7 +154,6 @@ function RoleplayFinder.convertNotedataToNote(notedata)
 end
 
 function RoleplayFinder.updateNotedata()
-    d("Going to update notedata.")
     -- TODO: Eventually might want to implement a throttle here, to prevent the user from accidentally spamming.
 
     local notedata = {
@@ -193,7 +192,6 @@ function RoleplayFinder.updateNotedata()
     end
 
     RoleplayFinder.setGuildNote(RoleplayFinder.convertNotedataToNote(notedata))
-    d("Updated notedata.")
 end
 
 SHORTBIO = "Talen-Chath is a very good lizard."
@@ -271,12 +269,96 @@ function RoleplayFinder.Activated(e)
     EVENT_MANAGER:UnregisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED)
 
     if RoleplayFinder.savedVariables.FirstLoad then
-        RoleplayFinder.savedVariables.FirstLoad = false
+        RoleplayFinder.savedVariables.FirstLoad = fal   wdse
     end
 end
 -- When player is ready, after everything has been loaded.
 EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED, RoleplayFinder.Activated)
-]]--
+]] --
+
+local function ShowContextMenu()
+    ClearMenu()
+    AddMenuItem("Set to In Character", function()
+        d("a")
+    end)
+    AddMenuItem("Set to Out of Character", function()
+        d("a")
+    end)
+    AddMenuItem("View Homestead Directory", function()
+        -- TODO: Eventually show a nice GUI with a list of homesteads.
+        RoleplayFinder.printAllLocationData()
+    end)
+    ShowMenu()
+end
+
+local myList = ZO_SortFilterList:Subclass()
+
+function myList:New(control)
+    ZO_SortFilterList.InitializeSortFilterList(self, control)
+
+    -- tiebreaker  is used when values are equal. You can also add isNumeric = true if needed.
+    local sorterKeys =
+    {
+        ["name"] = {tiebreaker = "population"},
+        ["location"] = {tiebreaker = "population"},
+        ["faction"] = {tiebreaker = "population"},
+        ["population"] = {isNumeric = true},
+    }
+
+    self.masterList = {}
+    ZO_ScrollList_AddDataType(self.list, 1, "HomesteadDirectoryRowTemplate", 32, function(control, data) self:SetupEntry(control, data) end) -- Add my row
+    ZO_ScrollList_EnableHighlight(self.list, "ZO_ThinListHighlight") -- Enable the highlight (the turquoise color)
+    self.currentSortKey = "population" -- defaut sort
+
+    self.sortFunction = function(listEntry1, listEntry2) return ZO_TableOrderingFunction(listEntry1.data, listEntry2.data, self.currentSortKey, sorterKeys, self.currentSortOrder) end -- my sort function
+    self:SetAlternateRowBackgrounds(true) -- Alternate background, one dark, one grey
+
+    return self
+
+end
+
+function myList:SetupEntry(control, data)
+    -- Setup a row
+    control.data = data
+    control.name = GetControl(control, "Name")
+    control.location = GetControl(control, "Location")
+    control.faction = GetControl(control, "Faction")
+    control.population = GetControl(control, "Population")
+
+    control.name:SetText(data.name)
+    control.location:SetText("Bleaker's Outpost")
+    control.faction:SetText("Everyone buy AD")
+    control.population:SetText("42")
+
+    d("setting up entry")
+
+    ZO_SortFilterList.SetupRow(self, control, data)
+end
+
+function myList:BuildMasterList()
+    self.masterList = {}
+    -- TODO: Read a list from somewhere and copy it into masterList
+    table.insert(self.masterList, { name = "lol", location = "Bleaker's Outpost" })
+    table.insert(self.masterList, { name = "xds" })
+    table.insert(self.masterList, { name = "lolxas" })
+    table.insert(self.masterList, { name = "v" })
+end
+
+function myList:SortScrollList()
+    local scrollData = ZO_ScrollList_GetDataList(self.list)
+    table.sort(scrollData, self.sortFunction)
+end
+
+function myList:FilterScrollList()
+    -- If you want to add a filter
+    local scrollData = ZO_ScrollList_GetDataList(self.list)
+    ZO_ClearNumericallyIndexedTable(scrollData)
+
+    for i = 1, #self.masterList do
+        local data = self.masterList[i]
+        table.insert(scrollData, ZO_ScrollList_CreateDataEntry(1, data))
+    end
+end
 
 function RoleplayFinder.OnAddOnLoaded(event, addonName)
     if addonName ~= RoleplayFinder.name then return end
@@ -287,15 +369,27 @@ function RoleplayFinder.OnAddOnLoaded(event, addonName)
     -- Settings menu in Settings.lua.
     RoleplayFinder.LoadSettings()
 
-    -- Slash commands must be lowercase!!! Set to nil to disable.
-    -- SLASH_COMMANDS["/newaddon"] = NewAddon.AnimateText
-    -- Reset autocomplete cache to update it.
-    -- SLASH_COMMAND_AUTO_COMPLETE:InvalidateSlashCommandCache()
+    -- Create the IC/OOC toggle button.
+
+    local buttonControl = WINDOW_MANAGER:CreateControl("buttonControl", ZO_ChatWindow, CT_BUTTON)
+    buttonControl:SetAnchor(TOPLEFT, ZO_ChatWindowOptions, TOPLEFT, -32, 0)
+    buttonControl:SetDimensions(32, 32)
+    buttonControl:SetNormalTexture('/EsoUI/Art/ChatWindow/chat_options_up.dds')
+    buttonControl:SetMouseOverTexture('/esoui/art/buttons/closebutton_mouseover.dds')
+    buttonControl:SetHandler("OnClicked", ShowContextMenu)
+    buttonControl:SetState(BSTATE_NORMAL)
 
     -- TODO: hook to update my notedata on location change
     -- TODO: hook to update my notedata on population change
     EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED, RoleplayFinder.updateNotedata)
     EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_HOUSING_POPULATION_CHANGED, RoleplayFinder.updateNotedata)
+
+    -- TODO: test code
+    SLASH_COMMANDS["/tt"] = function()
+        HomesteadDirectoryWindow:SetHidden(not HomesteadDirectoryWindow:IsHidden())
+    end
+    myList:New(HomesteadDirectoryWindow)
+    myList:RefreshData()
 end
 
 -- When any addon is loaded, but before UI (Chat) is loaded.

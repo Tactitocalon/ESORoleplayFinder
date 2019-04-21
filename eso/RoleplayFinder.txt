@@ -31,6 +31,7 @@ lib\LibAddonMenu-2.0\controls\divider.lua
 CRC32.lua
 numberlua.lua
 
+HomesteadRegistry.xml
 data\LocationRegistry.lua
 
 RoleplayFinder.lua

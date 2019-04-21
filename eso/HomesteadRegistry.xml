@@ -1,0 +1,79 @@
+<GuiXml>
+    <Controls>
+        <TopLevelControl name="HomesteadDirectoryWindow" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="false">
+            <Dimensions x="1000" y="400" />
+            <Anchor point="CENTER" />
+            <Controls>
+                <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" >
+                    <AnchorFill />
+                </Backdrop>
+
+                <Control name="$(parent)Headers">
+                    <Anchor point="TOPLEFT" offsetX="30"/>
+                    <Anchor point="TOPRIGHT" offsetX="-35" offsetY="5"/>
+                    <Dimensions y="32"/>
+                    <Controls>
+                        <Control name="$(parent)Name" inherits="ZO_SortHeader">
+                            <OnInitialized>
+                                ZO_SortHeader_Initialize(self, "Name", "skName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                            </OnInitialized>
+                            <Anchor point="TOPLEFT" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
+                            <Dimensions x="160" y="32"/>
+                        </Control>
+                        <Control name="$(parent)Location" inherits="ZO_SortHeader">
+                            <OnInitialized>
+                                ZO_SortHeader_Initialize(self, "Location", "skLocation", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                            </OnInitialized>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Name" offsetX="18"/>
+                            <Dimensions x="300" y="32"/>
+                        </Control>
+                        <Control name="$(parent)Faction" inherits="ZO_SortHeader">
+                            <OnInitialized>
+                                ZO_SortHeader_Initialize(self, "Faction", "skFaction", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                            </OnInitialized>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Location" offsetX="18"/>
+                            <Dimensions x="215" y="32"/>
+                        </Control>
+                        <Control name="$(parent)Population" inherits="ZO_SortHeader">
+                            <OnInitialized>
+                                ZO_SortHeader_Initialize(self, "Population", "skPopulation", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
+                            </OnInitialized>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)Faction" offsetX="18"/>
+                            <Dimensions x="150" y="32"/>
+                        </Control>
+                    </Controls>
+                </Control>
+
+                <Control name="$(parent)List" inherits="ZO_ScrollList">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)Headers" relativePoint="BOTTOMLEFT" offsetY="3"/>
+                    <Anchor point="BOTTOMRIGHT" offsetX="-35" offsetY="-160"/>
+                </Control>
+            </Controls>
+        </TopLevelControl>
+
+        <Label name="HomesteadDirectoryRowLabel" font="ZoFontGame" wrapMode="ELLIPSIS" virtual="true"/>
+        <Control name="HomesteadDirectoryRowTemplate" mouseEnabled="true" virtual="true">
+            <Dimensions y="30"/>
+            <Controls>
+                <Texture name="$(parent)BG" inherits="ZO_ThinListBgStrip"/>
+
+                <Label name="$(parent)Name" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT"/>
+                    <Dimensions x="160" y="30"/>
+                </Label>
+                <Label name="$(parent)Location" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Name" offsetX="18"/>
+                    <Dimensions x="300" y="30"/>
+                </Label>
+                <Label name="$(parent)Faction" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Location" offsetX="18"/>
+                    <Dimensions x="215" y="30"/>
+                </Label>
+                <Label name="$(parent)Population" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
+                    <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)Faction" offsetX="18"/>
+                    <Dimensions x="150" y="30"/>
+                </Label>
+            </Controls>
+        </Control>
+    </Controls>
+</GuiXml>
