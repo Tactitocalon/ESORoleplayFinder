@@ -9,7 +9,15 @@ RoleplayFinder = {
 
     -- Default settings.
     savedVariables = {
-        FirstLoad = true
+        shortBio = "",
+        isInCharacter = false,
+        autoInCharacterSettingMap = AUTO_IC_REMEMBER_ON_LOGIN,
+    },
+
+    constants = {
+        AUTO_IC_REMEMBER_ON_LOGIN = 1,
+        AUTO_IC_SET_OOC_ON_LOGIN = 2,
+        AUTO_IC_SET_IC_ON_LOGIN = 3,
     },
 }
 
@@ -168,9 +176,9 @@ function RoleplayFinder.updateNotedata()
     }
 
     -- TODO: read inCharacter flag from... somewhere
-    notedata.inCharacter = true
+    notedata.inCharacter = RoleplayFinder.savedVariables.isInCharacter
     -- TODO: Read shortBio from somewhere too...
-    notedata.shortBio = SHORTBIO
+    notedata.shortBio = RoleplayFinder.savedVariables.shortBio
 
     notedata.protocolVersion = RoleplayFinder.protocolVersion
 
@@ -236,7 +244,7 @@ function RoleplayFinder.printAllLocationData()
     for locationId, locationData in pairs(allLocationData) do
         local location = LocationRegistry.getLocationById(locationId)
         if (location ~= nil) then
-            d(COLOR_LOCATION_HEADER .. location.houseName .. " (" .. locationData.population .. "/" .. location.populationCap .. ")|r")
+            d(COLOR_LOCATION_HEADER .. location.houseName .. " (" .. locationData.population .. " / " .. location.populationCap .. ")|r")
         end
     end
 end
@@ -251,7 +259,7 @@ function RoleplayFinder.computeDisplayText(notedata)
 
     local location = LocationRegistry.getLocationById(notedata.locationId)
     if (location ~= nil) then
-        notetext = notetext .. "\n" .. COLOR_LOCATION_HEADER .. location.houseName .. " (" .. notedata.population .. "/" .. location.populationCap .. ")|r"
+        notetext = notetext .. "\n" .. COLOR_LOCATION_HEADER .. location.houseName .. " (" .. notedata.population .. " / " .. location.populationCap .. ")|r"
     end
 
     if (notedata.shortBio ~= "") then
@@ -277,10 +285,16 @@ EVENT_MANAGER:RegisterForEvent(RoleplayFinder.name, EVENT_PLAYER_ACTIVATED, Role
 local function ShowContextMenu()
     ClearMenu()
     AddMenuItem("Set to In Character", function()
-        d("a")
+        RoleplayFinder.savedVariables.isInCharacter = true
+        -- TODO: set IC button icon
+        RoleplayFinder.updateNotedata()
+        d("You are now flagged as In Character.")
     end)
-    AddMenuItem("Set to Out of Character", function()
-        d("a")
+    AddMenuItem("Set to Out Of Character", function()
+        RoleplayFinder.savedVariables.isInCharacter = false
+        -- TODO: set OOC button icon
+        RoleplayFinder.updateNotedata()
+        d("You are now flagged as Out Of Character.")
     end)
     AddMenuItem("View Homestead Directory", function()
         HomesteadDirectoryWindow:SetHidden(false)
