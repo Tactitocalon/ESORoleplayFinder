@@ -1,15 +1,15 @@
 <GuiXml>
     <Controls>
-        <TopLevelControl name="HomesteadDirectoryWindow" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true">
-            <Dimensions x="1000" y="400" />
-            <Anchor point="CENTER" />
+        <TopLevelControl name="HomesteadDirectoryWindow" mouseEnabled="true" movable="true" clampedToScreen="true" allowBringToTop="true" tier="HIGH" hidden="true">
+            <Dimensions x="1300" y="600" />
+            <Anchor point="CENTER" relativeTo="GuiRoot" relativePoint="CENTER" offsetX="0" offsetY="0" />
             <Controls>
                 <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" >
                     <AnchorFill />
                 </Backdrop>
 
                 <Control name="$(parent)Headers">
-                    <Anchor point="TOPLEFT" offsetX="30"/>
+                    <Anchor point="TOPLEFT" offsetX="45"/>
                     <Anchor point="TOPRIGHT" offsetX="-35" offsetY="5"/>
                     <Dimensions y="32"/>
                     <Controls>
@@ -18,7 +18,7 @@
                                 ZO_SortHeader_Initialize(self, "Name", "houseName", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
                             <Anchor point="TOPLEFT" relativePoint="TOPLEFT" offsetX="0" offsetY="0"/>
-                            <Dimensions x="160" y="32"/>
+                            <Dimensions x="300" y="32"/>
                         </Control>
                         <Control name="$(parent)LoreLocation" inherits="ZO_SortHeader">
                             <OnInitialized>
@@ -32,7 +32,7 @@
                                 ZO_SortHeader_Initialize(self, "Summary", "shortDesc", ZO_SORT_ORDER_DOWN, TEXT_ALIGN_LEFT, "ZoFontGameLargeBold")
                             </OnInitialized>
                             <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="$(parent)LoreLocation" offsetX="18"/>
-                            <Dimensions x="215" y="32"/>
+                            <Dimensions x="400" y="32"/>
                         </Control>
                         <Control name="$(parent)Population" inherits="ZO_SortHeader">
                             <OnInitialized>
@@ -46,8 +46,75 @@
 
                 <Control name="$(parent)List" inherits="ZO_ScrollList">
                     <Anchor point="TOPLEFT" relativeTo="$(parent)Headers" relativePoint="BOTTOMLEFT" offsetY="3"/>
-                    <Anchor point="BOTTOMRIGHT" offsetX="-35" offsetY="-160"/>
+                    <Anchor point="BOTTOMRIGHT" offsetX="-35" offsetY="-260"/>
                 </Control>
+
+                <Control name="$(parent)Details">
+                    <Anchor point="TOPLEFT" relativeTo="$(parent)List" relativePoint="BOTTOMLEFT" offsetY="3"/>
+                    <Anchor point="BOTTOMRIGHT" offsetX="-35" offsetY="0"/>
+
+                    <Controls>
+                        <Label name="$(parent)HouseName" text="The Crystal Fox Inn (1 / 12)" font="ZoFontHeader4" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+                            <Anchor point="TOPLEFT"/>
+                        </Label>
+
+                        <Label name="$(parent)Location" text="Shores of Alik'r Desert, Hammerfell" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL">
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)HouseName" offsetY="5"/>
+                            <Dimensions x="130"/>
+                        </Label>
+
+                        <Backdrop name="$(parent)Output" inherits="ZO_EditBackdrop">
+                            <Anchor point="TOPLEFT" offsetX="300" offsetY="20" />
+                            <Anchor point="BOTTOMRIGHT" offsetX="-20" offsetY="-20" />
+                            <Controls>
+                                <EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop ZO_EditDefaultText" editEnabled="false" multiLine="true" text="hello"/>
+                            </Controls>
+                        </Backdrop>
+
+                        <!--
+                        <Label name="$(parent)LastVisitedValue" text="-" wrapMode="ELLIPSIS" font="ZoFontGameShadow" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED" mouseEnabled="true">
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)LastVisitedLabel" offsetX="5"/>
+                            <Dimensions x="260"/>
+                            <OnMouseEnter>
+                                AwesomeGuildStore.internal.GuildTraderDetailsLastVisited_OnMouseEnter(self)
+                            </OnMouseEnter>
+                            <OnMouseExit>
+                                AwesomeGuildStore.internal.GuildTraderDetailsLastVisited_OnMouseExit(self)
+                            </OnMouseExit>
+                        </Label>
+                        <Label name="$(parent)ZoneLabel" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL">
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)LastVisitedLabel" offsetY="5"/>
+                            <Dimensions x="130"/>
+                        </Label>
+                        <Label name="$(parent)ZoneValue" text="-" wrapMode="ELLIPSIS" font="ZoFontGameShadow" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)ZoneLabel" offsetX="5"/>
+                            <Dimensions x="260"/>
+                        </Label>
+                        <Label name="$(parent)LocationLabel" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL">
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)ZoneLabel" offsetY="5"/>
+                            <Dimensions x="130"/>
+                        </Label>
+                        <Label name="$(parent)LocationValue" text="-" wrapMode="ELLIPSIS" font="ZoFontGameShadow" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)LocationLabel" offsetX="5"/>
+                            <Dimensions x="260"/>
+                        </Label>
+                        <Label name="$(parent)OwnerLabel" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL">
+                            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)LocationLabel" offsetY="5"/>
+                            <Dimensions x="130"/>
+                        </Label>
+                        <Label name="$(parent)OwnerValue" text="-" wrapMode="ELLIPSIS" font="ZoFontGameShadow" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED">
+                            <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)OwnerLabel" offsetX="5"/>
+                            <Dimensions x="260"/>
+                        </Label>
+
+                        <Label name="$(parent)HistoryLabel" font="ZoFontGameLargeBold" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL">
+                            <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT" relativeTo="$(parent)TraderName" offsetX="400" offsetY="0"/>
+                        </Label>
+                        -->
+
+                    </Controls>
+                </Control>
+
             </Controls>
         </TopLevelControl>
 
@@ -59,7 +126,7 @@
 
                 <Label name="$(parent)HouseName" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
                     <Anchor point="LEFT"/>
-                    <Dimensions x="160" y="30"/>
+                    <Dimensions x="300" y="30"/>
                 </Label>
                 <Label name="$(parent)LoreLocation" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)HouseName" offsetX="18"/>
@@ -67,7 +134,7 @@
                 </Label>
                 <Label name="$(parent)ShortDesc" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)LoreLocation" offsetX="18"/>
-                    <Dimensions x="215" y="30"/>
+                    <Dimensions x="400" y="30"/>
                 </Label>
                 <Label name="$(parent)Population" inherits="HomesteadDirectoryRowLabel" verticalAlignment="CENTER" mouseEnabled="true">
                     <Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$(parent)ShortDesc" offsetX="18"/>
